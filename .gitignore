@@ -184,3 +184,23 @@ shared_logs/
 
 # Output files
 output.md
+
+
+# Node modules directory
+node_modules/
+
+# Build output
+dist/
+
+# Logs and temp files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+*.tmp
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

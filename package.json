@@ -13,14 +13,14 @@
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.6.2",
+    "@modelcontextprotocol/sdk": "^1.0.3",
     "diff": "^5.1.0",
-    "minimatch": "^9.1.2",
+    "minimatch": "^10.0.1",
     "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.20.7",
-    "fs-promises": "0.1.2"
+    "zod-to-json-schema": "^3.20.7"
   },
   "devDependencies": {
+    "@types/diff": "^6.0.0",
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3"
   }

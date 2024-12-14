@@ -1,11 +1,10 @@
 {
   "mcpServers": {
     "filesystem": {
-      "command": "npx",
+      "command": "/usr/local/bin/node",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/dazzagreenwood/mcp-hello/module1/files",
+        "/Users/dazzagreenwood/filesystem/dist/index.js",
+        "/Users/dazzagreenwood/mcp-hello/module1/files"
       ]
     }
   }

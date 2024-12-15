@@ -1,19 +1,10 @@
-Below is a revised version that integrates the requested changes:
-
-1. **Clarification on Technology-Specific Instructions:**  
-   Clearly states that the given instructions for Node.js, TypeScript, and JavaScript apply when those technologies are relevant. For other languages or frameworks (e.g., Python), analogous steps (like verifying package versions with `pip` or using Python-based test frameworks) should be followed.
-
-2. **Incorporation of Beneficial Information from the Provided Alternatives:**  
-   Additional beneficial points from the alternative responses are integrated, such as emphasizing MCP architecture fundamentals, incremental and testable changes, and verifying built-in modules before installing external packages. Security and error handling best practices are also reinforced.
-
-3. **Concise “How-To” Guide for Future LLM Interactions:**  
-   A short, crisp checklist at the end highlights the critical tasks and pitfalls that LLMs should keep in mind, removing most of the detailed, “fluffy” best practices. This concise section ensures future LLM responses avoid predictable mistakes and version conflicts.
+> NOTE: Add the following guidelines to LLM's when implementing new features for existing MCP servers.
 
 ---
 
-# Revised Comprehensive Guide for Implementing MCP Server Features
+# Guide for Implementing MCP Server Features
 
-This guide helps ensure future Large Language Models (LLMs) provide accurate, efficient, and secure instructions when adding new features to MCP servers. While many examples assume a Node.js and TypeScript/JavaScript environment, **if you are working in Python or another language, apply analogous steps using the appropriate tools and dependency management practices.** The core principles of verifying dependencies, validating paths, implementing robust error handling, and incremental testing remain universally applicable.
+This guide helps ensure Large Language Models (LLMs) provide accurate, efficient, and secure instructions when adding new features to MCP servers. While many examples assume a Node.js and TypeScript/JavaScript environment, **if you are working in Python or another language, apply analogous steps using the appropriate tools and dependency management practices.** The core principles of verifying dependencies, validating paths, implementing robust error handling, and incremental testing remain universally applicable.
 
 ## Key MCP Concepts (If Unfamiliar, Review Before Implementation)
 

@@ -486,3 +486,374 @@ Key components:
 * Make the client generic enough that it can be used to test multiple servers.
 
 By combining the code provided in `MCP-Repositories-combined_file.md`, the new feature implementation example in `dazzaji_filesystem.md` and this comprehensive guide, you should now have a firm foundation for adding new functionality to existing Model Context Protocol servers or even building your own new server and client.
+
+
+-----------
+
+# Appendix 1: MCP Client and Server Setup for Testing
+
+To test the client and server effectively while managing complexity and avoiding conflicts, you can follow one of two approaches. Each has pros and cons:
+
+---
+
+### **Option 1: Run Client and Server in the Same Project**
+
+**Steps:**
+1. Use the same Python project directory (e.g., the one with `dazzaji_filesystem.md`) to implement and test the client and server.
+2. Add the client code to a new file, such as `client_test.py`, to keep it separate from server code.
+3. Use the same virtual environment, ensuring dependencies are installed and compatible.
+4. Start the server in one terminal tab:
+   ```bash
+   python server.py
+   ```
+5. Open another terminal tab or pane (in VS Code or a standalone terminal) and run the client to test commands:
+   ```bash
+   python client_test.py
+   ```
+
+**Pros:**
+- Simplifies the setup; you manage one environment and dependency set.
+- Easier to cross-reference client and server code.
+
+**Cons:**
+- Potential for dependency conflicts if the client needs different packages or versions.
+- The shared project can get cluttered if you add multiple test scripts.
+
+---
+
+### **Option 2: Run Client and Server in Separate Projects**
+
+**Steps:**
+1. Create a separate directory (e.g., `mcp_client`) for the client project and initialize a new virtual environment.
+2. Implement the client in this separate directory.
+3. Keep the server running in its own project and terminal.
+   - Open the server project in VS Code, start the server, and leave the terminal running:
+     ```bash
+     python server.py
+     ```
+4. Open the client project in a new VS Code instance or a separate terminal and run the client:
+   ```bash
+   python client_test.py
+   ```
+
+**To avoid the server terminating when you close VS Code:**
+- Start the server as a background process:
+  ```bash
+  nohup python server.py > server.log 2>&1 &
+  ```
+- Alternatively, use `tmux` or `screen` to manage server sessions:
+  - Start a session with `tmux`:
+    ```bash
+    tmux new -s server_session
+    ```
+  - Run the server:
+    ```bash
+    python server.py
+    ```
+  - Detach from the session with `Ctrl+B, D` and reattach later:
+    ```bash
+    tmux attach -t server_session
+    ```
+
+**Pros:**
+- Clear separation of concerns; no risk of dependency conflicts.
+- Easier to manage and deploy the client independently in the future.
+
+**Cons:**
+- Slightly more complex to set up and manage.
+- Requires using tools like `tmux` to keep the server running in the background.
+
+---
+
+### **Recommendation**
+If you’re focused on simplicity for a quick "hello-world" test:
+- Start with **Option 1 (Same Project)**.
+- Use separate files and terminal tabs to isolate client and server functionality.
+
+If you anticipate evolving the client and server into independent projects:
+- Transition to **Option 2 (Separate Projects)** after initial testing.
+
+---
+
+### **Testing Tools (e.g., `read_file`, `list_directory`)**
+Once the server and client are running:
+1. **Modify the Client Command:**
+   Update the client script (e.g., `client_test.py`) to test specific tools. Replace or extend the `tools/call` request:
+   ```python
+   # Test read_file
+   read_file_response = await session.call_tool(
+       name="read_file",
+       arguments={"path": "/path/to/hello_world.txt"}
+   )
+   print("Read File Result:", read_file_response)
+
+   # Test list_directory
+   list_dir_response = await session.call_tool(
+       name="list_directory",
+       arguments={"path": "/path/to/directory", "recursive": False}
+   )
+   print("List Directory Result:", list_dir_response)
+   ```
+
+2. **Use Command-Line Arguments for Flexibility:**
+   Allow the client script to accept command-line arguments to dynamically test tools. For example:
+   ```python
+   import argparse
+   parser = argparse.ArgumentParser()
+   parser.add_argument("--tool", required=True, help="Tool to call")
+   parser.add_argument("--args", required=True, help="Arguments as JSON")
+   args = parser.parse_args()
+
+   import json
+   tool_args = json.loads(args.args)
+
+   # Dynamically call the tool
+   response = await session.call_tool(name=args.tool, arguments=tool_args)
+   print("Tool Response:", response)
+   ```
+
+   Run the client with specific commands:
+   ```bash
+   python client_test.py --tool "read_file" --args '{"path": "/path/to/file.txt"}'
+   ```
+
+3. **Iterate and Test:**
+   Test each tool in turn by modifying the script or using arguments.
+
+---
+
+### **Final Notes**
+- Keep it simple for the initial test to avoid overcomplicating the setup.
+- Expand functionality (e.g., dynamic command-line arguments) after you confirm the client and server can communicate.
+
+
+---
+
+# Appendix 2 Confirm File Creation
+
+
+### **Steps to Confirm File Creation**
+
+After running the client script:
+1. **Final File Name and Content:**
+   - **File Name:** `testfile.txt`
+   - **File Path:** `/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt`
+   - **Expected Content:** `hello world from client`
+
+2. **Command for Confirmation (if needed):**
+   In a terminal, use the `cat` command to confirm:
+   ```bash
+   cat /Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt
+   ```
+
+---
+
+### **Do Additional Commands Need to Be Run After the Client?**
+- **No Additional Commands Needed:** 
+  - The client script sends the `write_file` command to the server. If the server is running correctly, the file will be created during the client execution.
+  - The server should respond with confirmation, which the client logs.
+
+---
+
+### **Final Recommendations**
+1. **Run the Server:**
+   Launch the server using the provided command:
+   ```bash
+   node /Users/dazzagreenwood/filesystem/dist/index.js /Users/dazzagreenwood/mcp-hello/module1/files
+   ```
+
+2. **Run the Client:**
+   Execute the client script with the path to the server:
+   ```bash
+   node build/client.js /Users/dazzagreenwood/filesystem/dist/index.js /Users/dazzagreenwood/mcp-hello/module1/files
+   ```
+
+3. **Verify File Creation:**
+   Use the terminal to check the existence and content of the file:
+   ```bash
+   ls -l /Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt
+   cat /Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt
+   ```
+
+4. **Optional Tests:**
+   - Test other tools (e.g., `read_file`, `list_directory`) using MCP Inspector or the client to ensure the server's functionality.
+
+Your server and client setup are robust and should work seamlessly. 
+
+
+## Adding Other filesystem Commands
+
+Once the server and client are up and running, and you've confirmed that the "hello-world" file was created, you can test other tools (e.g., `read_file`, `list_directory`) by sending appropriate commands via the client. Here's how you can proceed:
+
+---
+
+### **Testing Other Tools with the Client**
+You don't need to add special commands to the terminal itself, but you will need to modify the client script or provide input arguments to test the desired tools.
+
+#### **General Steps**
+1. **Update the Client Code to Test Other Tools:**
+   - Modify the `client.ts` or `client.py` file to send requests to the server using the tool name and required arguments.
+   - Each tool requires specific input parameters, which you can pass using JSON-like structures.
+
+2. **Example: Adding Commands for Other Tools**
+   - Below are examples of how to test `read_file` and `list_directory`.
+
+---
+
+#### **TypeScript Client Example**
+Modify the `main` function in `client.ts` to call different tools. For example:
+
+**1. Read a File (`read_file`):**
+```typescript
+const readFileResult = await client.request(
+    {
+        method: "tools/call",
+        params: {
+            name: "read_file",
+            arguments: {
+                path: "/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt" // Replace with your file path
+            }
+        }
+    },
+    CallToolResultSchema
+);
+
+console.log("Read file result:", readFileResult);
+```
+
+**2. List a Directory (`list_directory`):**
+```typescript
+const listDirResult = await client.request(
+    {
+        method: "tools/call",
+        params: {
+            name: "list_directory",
+            arguments: {
+                path: "/Users/dazzagreenwood/mcp-hello/module1/files", // Replace with the directory you want to list
+                recursive: true // Set to `false` for non-recursive listing
+            }
+        }
+    },
+    CallToolResultSchema
+);
+
+console.log("List directory result:", listDirResult);
+```
+
+---
+
+#### **Python Client Example**
+Modify the `main` function in `client.py` to test other tools:
+
+**1. Read a File (`read_file`):**
+```python
+read_file_result = await session.call_tool(
+    name="read_file",
+    arguments={
+        "path": "/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt"  # Replace with your file path
+    }
+)
+print("Read file result:", read_file_result)
+```
+
+**2. List a Directory (`list_directory`):**
+```python
+list_dir_result = await session.call_tool(
+    name="list_directory",
+    arguments={
+        "path": "/Users/dazzagreenwood/mcp-hello/module1/files",  # Replace with your directory path
+        "recursive": True  # Set to `False` for non-recursive listing
+    }
+)
+print("List directory result:", list_dir_result)
+```
+
+
+---
+
+# Appendix 3: Test More Tools in filesystem Server
+
+#### **Testing Multiple Tools Dynamically**
+You can create a command-line argument system in your client to make testing more flexible.
+
+**TypeScript Example:**
+Allow users to pass the tool name and arguments via command-line arguments:
+```typescript
+const toolName = process.argv[3]; // e.g., "read_file"
+const toolArgs = JSON.parse(process.argv[4]); // e.g., '{"path": "/path/to/file"}'
+
+const toolResult = await client.request(
+    {
+        method: "tools/call",
+        params: {
+            name: toolName,
+            arguments: toolArgs
+        }
+    },
+    CallToolResultSchema
+);
+
+console.log(`${toolName} result:`, toolResult);
+```
+
+**Python Example:**
+Use `argparse` to accept the tool name and arguments:
+```python
+import argparse
+import json
+
+parser = argparse.ArgumentParser(description="Test MCP tools")
+parser.add_argument("--tool", required=True, help="Tool name (e.g., read_file, list_directory)")
+parser.add_argument("--args", required=True, help='Arguments as JSON string (e.g., \'{"path": "/path/to/file"}\')')
+args = parser.parse_args()
+
+tool_result = await session.call_tool(
+    name=args.tool,
+    arguments=json.loads(args.args)
+)
+print(f"{args.tool} result:", tool_result)
+```
+
+Run the client with:
+```bash
+python client.py --tool read_file --args '{"path": "/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt"}'
+```
+
+---
+
+### **Key Notes for Testing**
+1. **Supported Tools**: 
+   - Refer to the tools listed in the server implementation (`index.ts`). Examples include:
+     - `read_file`
+     - `list_directory`
+     - `create_directory`
+     - `move_file`
+     - `get_file_info`
+
+2. **Required Inputs**: 
+   - Each tool requires specific inputs. Use the input schemas defined in the server (e.g., `WriteFileArgsSchema`, `ReadFileArgsSchema`).
+
+3. **Tool Validation**:
+   - Ensure the input paths are within the allowed directories. Otherwise, the server will reject the request.
+
+4. **Error Handling**:
+   - Add error-handling logic in the client to capture and log server errors.
+
+---
+
+### **Testing Workflow**
+1. Start the server:
+   ```bash
+   node dist/index.js "/Users/dazzagreenwood/mcp-hello/module1/files"
+   ```
+2. Run the client to test specific tools:
+   ```bash
+   node build/client.js /path/to/server/index.js read_file '{"path": "/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt"}'
+   ```
+   or for Python:
+   ```bash
+   python client.py --tool list_directory --args '{"path": "/Users/dazzagreenwood/mcp-hello/module1/files", "recursive": true}'
+   ```
+3. Verify results in the terminal output.
+
+By updating the client to dynamically support testing tools and arguments, you can streamline the testing process for all implemented server functionalities.

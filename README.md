@@ -648,6 +648,152 @@ NOTE: The next commands are hold-overs and I am not sure about them:
 3.  **Optional:** You can remove `"fs-promises": "0.1.2"` from the dependencies in `package.json`.
 4.  **Review and Test:** Carefully review all files and instructions again, then test the project thoroughly using both Claude Desktop and MCP Inspector.
 
+-----
+
+# DEEPER DIVE INTO THE INSPECTOR - A POWERFUL NEW TOOL
+
+## Testing Your Filesystem Server with the MCP Inspector
+
+Here's a step-by-step guide on how to use the MCP Inspector to validate the functionality of your filesystem server:
+
+### 1. Launch the MCP Inspector
+
+Make sure you've built the server first by running the `npm run build` command in the `filesystem` server folder. Then launch the inspector:
+
+```bash
+npx @modelcontextprotocol/inspector uvx node "/Users/dazzagreenwood/filesystem/dist/index.js" "/Users/dazzagreenwood/mcp-hello/module1/files"
+```
+(Replace the paths with where your files are located)
+
+After a short delay, the inspector will provide a localhost address in your terminal, which usually looks like this: `http://localhost:5173/?proxyPort=3000`.  Open this URL in your browser.
+
+### 2. Connect to the Server
+
+1.  You should see a sidebar with configuration and connection options for the server.
+2.  Make sure the settings match the server you want to connect to (especially if you are using custom arguments).
+3.  Click the "Connect" button in the left panel.
+
+If the server connects successfully, a green dot appears, and the content area of the Inspector loads, and any server errors show up in the console area in the bottom of the left panel.
+If there's a connection error, a red dot appears, along with an error message in the bottom part of the left hand sidebar.
+
+### 3. Explore the Tools Tab
+
+1.  Navigate to the **Tools** tab.
+2.  You should see a list of the tools exposed by your filesystem server, namely:
+    -   `read_file`
+    -   `read_multiple_files`
+    -   `write_file`
+    -   `edit_file`
+    -   `create_directory`
+    -   `list_directory`
+    -   `directory_tree`
+    -   `move_file`
+    -   `search_files`
+    -   `get_file_info`
+    -   `list_allowed_directories`
+3.  Select any tool from the list by clicking on it.
+4.  You will see a description and input fields below the list.
+
+#### Testing Specific Tools
+    -   **read_file:**
+        -   In the input field, enter the full path for a file (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files/test.txt"`) in the path text box, but make sure it's a valid path inside the directory given when starting the server.
+        -   Click "Run Tool".
+        -   Inspect the output in the "Response" section, where you should see the content of the file.
+
+    -   **write_file:**
+        -   In the input field, enter the path where you want to create a file (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt"`) and set a content (e.g., `"hello world"`).
+        -   Click "Run Tool."
+        -   Check your file system to confirm the new file and its content.
+    -   **edit_file:**
+        -    In the input field, enter the path where you want to edit a file (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files/test.txt"`).
+        -    Add an `edits` JSON list and specify the content to replace
+        ```json
+            {
+              "path": "/Users/dazzagreenwood/mcp-hello/module1/files/test.txt",
+              "edits": [
+                {
+                    "oldText": "test",
+                    "newText": "test-edited"
+                }
+              ],
+            "dryRun": false
+        }
+        ```
+        -   Click "Run Tool".
+        -   Check your file system to confirm the file and its content has changed.
+    -   **list_directory:**
+        -   In the input field for `path`, enter an absolute directory path (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files"`).
+        -   Click "Run Tool."
+        -   Verify that the "Response" section contains file and directory listings.
+        -   Check results when using `"recursive": true`.
+    -   **directory_tree:**
+        -   In the input field for path, enter an absolute directory path (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files"`).
+        -   Click "Run Tool."
+        -   Verify that the "Response" section contains file and directory tree structure as text output.
+    - **move_file:**
+       - In the input field for source enter an absolute file path (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt"`) in "source" field.
+       - In the input field for destination enter another absolute file path (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files/testfile2.txt"`)
+        -   Click "Run Tool."
+        -   Verify that the file has been moved/renamed and the old file does not exist in its original path.
+
+    -   **get_file_info:**
+        - In the input field for path, enter an absolute file path (e.g., `"/Users/dazzagreenwood/mcp-hello/module1/files/testfile.txt"`) or folder path.
+        -   Click "Run Tool."
+        - Verify that the "Response" section contains the information including size, access time, modified time, type, and permissions of the target file or directory.
+     -   **list_allowed_directories:**
+        - No input is required.
+        - Click "Run Tool."
+        - Verify that the "Response" section contains the list of directories specified when the server was started.
+
+### 4. Inspect console output
+   * The Console tab is also useful, as it can show any console output from your server.  This can be useful when using `console.log` to log output for debugging.
+   * You can also find these console logs in the `~/Library/Logs/Claude/mcp*.log` files.
+
+## Understanding Prompts, Resources, and Sampling
+
+### Prompts
+
+-   **Purpose**: Prompts are a way for servers to provide structured instructions to the LLM through clients.
+-   **Inspector**: In the inspector's **Prompts** tab, you can:
+    *   List available prompts: Click "List Prompts."
+    *   Select a prompt: Choose it from the list.
+    *   See a description of the prompt.
+    *   Fill in arguments using the UI, and click "Get Prompt" to render the message.
+
+-   **MCP Behavior**: In MCP, prompts are **user-controlled**. They are for the end user to invoke or select within a UI, and to review the content and arguments. They are not for the language model to choose.
+
+### Resources
+
+-   **Purpose**: Resources are a way for servers to expose data to clients and LLMs.
+-   **Inspector:** In the inspector's **Resources** tab, you can:
+    *   List available resources.
+    *   Select a resource to inspect and click "Read Resource" to see content.
+    *   List resource templates.
+
+-   **MCP Behavior**: In MCP, resources are **application-controlled**. They are for the host client applications to use in ways it sees fit, and they are not intended to be requested by the LLM directly.
+
+**Why no resources in the Filesystem Server?**
+
+You noted that the `filesystem` server shows no resources in the Inspector, while it does expose tools. This is expected since:
+
+1.  **No Explicit Resources**: The filesystem server only defines operations over files, directories, and metadata. The server itself doesn't define an explicit resource that can be individually browsed. Rather, the list of accessible folders is controlled by the command-line parameters used to start the server.  Also, note that the `list_allowed_directories` tool is present for this purpose, although this is not a resource.
+2.  **Dynamic Filesystem Data**: The files and directories are dynamic and do not fit a simple static resource structure, unlike the `memory` server which has a fixed `memo://insights` resource. They are read dynamically using the `read_file` tool, when required.
+
+### Sampling
+
+-   **Purpose**: Sampling allows a server to _request_ the client to perform LLM operations on its behalf. It is important for agents and agentic behaviour.
+-   **Inspector**: In the inspector's **Sampling** tab, you can:
+    *   Review pending sampling requests made by the server.
+    *   Approve or reject each request.
+    *   (When a request is approved, the client will make an LLM call)
+    *   Review the LLM-provided response.
+
+-   **MCP Behavior**: In MCP, sampling is a **model-controlled** primitive, which allows server processes to request the client to make requests to an LLM. Critically, the user has full control over the execution of the sampling operation, and can choose whether or not to allow the action. This preserves a human-in-the-loop, which is important for security and trust.
+
+**What is Sampling For?**
+- To perform an LLM action based on the internal state of a server. For example, if you want the server to auto-create summaries, rewrite content, or take another LLM action without the user being directly involved in issuing a prompt (though they may review it)
+- To orchestrate long running processes or make multi-stage decisions.
+- To maintain a persistent state within the server over time.
 
 
 ----

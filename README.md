@@ -592,6 +592,16 @@ Here are instructions to incorporate MCP Inspector and Claude Desktop testing.
 **Testing with MCP Inspector:**
 
 1.  **Start the Server:** Open a terminal and run the following command (replace `/Users/dazzagreenwood/mcp-hello/module1/files` with your allowed directory and make sure you use absolute path references to both the allowed directory and the command:
+
+THE FOLLOWING COMMAND WORKS:
+
+   ```bash
+   npx @modelcontextprotocol/inspector uvx node "/Users/dazzagreenwood/filesystem/dist/index.js" "/Users/dazzagreenwood/mcp-hello/module1/files"
+   ```
+
+---
+
+NOTE: The next commands are hold-overs and I am not sure about them:
    ```bash
    npx @modelcontextprotocol/inspector uvx /usr/local/bin/node /Users/dazzagreenwood/filesystem/dist/index.js "/Users/dazzagreenwood/mcp-hello/module1/files"
    ```
@@ -599,6 +609,9 @@ Here are instructions to incorporate MCP Inspector and Claude Desktop testing.
   ```bash
   npx @modelcontextprotocol/inspector uvx mcp-server-filesystem "/Users/dazzagreenwood/mcp-hello/module1/files"
   ```
+
+----
+
 2.  **Open MCP Inspector:** Open a web browser and go to the URL provided by the MCP Inspector output (usually `http://localhost:9001`).
 3.  **Connect:** In the MCP Inspector, click "Connect".
 4.  **Go to the "Tools" tab:** You should see the list of tools provided by the server.
